@@ -26,7 +26,7 @@ Agnes-Image-2.0-Flash 是 Sapiens AI 开发的高性能图像生成与编辑模�
 
 需要配置 `AGNES_API_KEY` 环境变量，值为 Agnes AI 平台的 API Key。
 
-如果使用 LobeHub 凭证系统，将 key 保存为 `agnes`，环境变量名为 `AGNES_API_KEY`（⚠️ 注意不是 `AGNES_AI_API_KEY`）。
+如果使用 LobeHub 凭证系统，将 key 保存为 `agnes`，环境变量名为 `AGNES_API_KEY`。
 
 ### 沙箱调用方式
 
@@ -179,7 +179,7 @@ POST /v1/images/generations
 5. 推荐超时时间: 60s–360s
 6. 目前免费使用
 7. **建议使用英文 prompt**，效果通常比中文更好
-8. LobeHub 凭证环境变量名为 `AGNES_API_KEY`（非 `AGNES_AI_API_KEY`）
+8. LobeHub 凭证环境变量名为 `AGNES_API_KEY`
 
 ## 应用场景
 
