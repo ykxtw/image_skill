@@ -10,22 +10,35 @@ tags:
   - img2img
   - ai-image
   - free
+  - 图像生成
 ---
 
 # Agnes-Image-2.0-Flash Skill
 
-Agnes-Image-2.0-Flash is a high-performance image generation and image editing model developed by Sapiens AI.
-ELO score: 1,184 (Artificial Analysis Image Editing Leaderboard, Top 20).
+Agnes-Image-2.0-Flash 是 Sapiens AI 开发的高性能图像生成与编辑模型。
+**ELO 评分**: 1,184（Artificial Analysis 图像编辑排行榜 Top 20）
 
-**Capabilities**: Text-to-Image, Image-to-Image, Multi-Image Input, Image Editing, Style Control
+**核心能力**: Text-to-Image、Image-to-Image、多图输入、图像编辑、风格控制
 
-**💰 Pricing**: Currently **$0 / image (free)**
+**💰 定价**: 当前 **免费**（$0/张）
 
-## 凭证配置
+## 凭证配置（LobeHub）
 
-需要配置 `AGNES_AI_API_KEY` 环境变量，值为 Agnes AI 平台的 API Key。
+需要配置 `AGNES_API_KEY` 环境变量，值为 Agnes AI 平台的 API Key。
 
-如果使用 LobeHub 凭证系统，将 key 保存为 `agnes`，环境变量名为 `AGNES_AI_API_KEY`。
+如果使用 LobeHub 凭证系统，将 key 保存为 `agnes`，环境变量名为 `AGNES_API_KEY`（⚠️ 注意不是 `AGNES_AI_API_KEY`）。
+
+### 沙箱调用方式
+
+```bash
+# 注入凭证
+injectCredsToSandbox("agnes")
+source ~/.creds/env
+
+# Python 中使用
+import os
+api_key = os.environ.get('AGNES_API_KEY')
+```
 
 ## API 配置
 
@@ -39,18 +52,26 @@ ELO score: 1,184 (Artificial Analysis Image Editing Leaderboard, Top 20).
 
 ### Text-to-Image（文生图）
 
-```plaintext
-POST /v1/images/generations
-Headers: Authorization: Bearer {API_KEY}, Content-Type: application/json
+```python
+import requests
 
-{
-  "model": "agnes-image-2.0-flash",
-  "prompt": "A clean product photo of a glass cube on a white studio background, soft shadows, high detail",
-  "size": "1024x768",
-  "extra_body": {
-    "response_format": "url"
-  }
-}
+response = requests.post(
+    "https://apihub.agnes-ai.com/v1/images/generations",
+    headers={
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "agnes-image-2.0-flash",
+        "prompt": "A cute cartoon otter avatar, kawaii style, soft colors, round and adorable, chibi, high quality",
+        "size": "1024x1024",
+        "extra_body": {
+            "response_format": "url"
+        }
+    }
+)
+
+image_url = response.json()["data"][0]["url"]
 ```
 
 - URL 输出: `data[0].url`
@@ -58,7 +79,7 @@ Headers: Authorization: Bearer {API_KEY}, Content-Type: application/json
 
 ### Image-to-Image（图生图）
 
-```plaintext
+```json
 POST /v1/images/generations
 {
   "model": "agnes-image-2.0-flash",
@@ -71,11 +92,11 @@ POST /v1/images/generations
 }
 ```
 
-图片输入支持：公开 URL 或 Data URI Base64 (`data:image/png;base64,xxxx`)
+图片输入支持：公开 URL 或 Data URI Base64（`data:image/png;base64,xxxx`）
 
 ### Multi-Image Composition（多图合成）
 
-```plaintext
+```json
 {
   "model": "agnes-image-2.0-flash",
   "prompt": "Combine the two characters into an intense fantasy battle scene",
@@ -108,7 +129,9 @@ POST /v1/images/generations
 [主体] + [场景/背景] + [风格] + [光照] + [构图] + [质量要求]
 ```
 
-示例：`A young explorer standing in an ancient temple, cinematic fantasy style, warm dramatic lighting, wide-angle composition, ultra detailed, high quality`
+示例（英文效果更佳）：
+- `A cute cartoon otter avatar, kawaii style, soft colors, round and adorable, chibi, high quality`
+- `A young explorer standing in an ancient temple, cinematic fantasy style, warm dramatic lighting, wide-angle composition, ultra detailed, high quality`
 
 ### 图生图结构
 ```
@@ -117,20 +140,35 @@ POST /v1/images/generations
 
 示例：`Change the background into a cinematic fantasy temple while preserving the person's face, outfit, and pose, warm dramatic lighting, wide-angle composition, ultra detailed, high quality`
 
-## 响应格式
+## 完整响应格式
 
 ```json
 {
-  "created": 1780000000,
+  "created": 1780926651,
+  "background": null,
   "data": [
     {
-      "url": "https://...",
+      "url": "https://platform-outputs.agnes-ai.space/images/text-to-image/2026/06/xxx.png",
       "b64_json": null,
       "revised_prompt": null
     }
-  ]
+  ],
+  "output_format": null,
+  "quality": null,
+  "size": null,
+  "usage": {
+    "total_tokens": 0,
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "image_tokens": 0,
+      "text_tokens": 0
+    },
+    "output_tokens": 0
+  }
 }
 ```
+
+> 注意：响应中包含 `usage` 对象记录 token 用量，以及 `background`、`output_format`、`quality`、`size` 等顶层字段。
 
 ## 注意事项
 
@@ -140,11 +178,13 @@ POST /v1/images/generations
 4. 输入图片 URL 需可公开访问，或使用 Data URI Base64
 5. 推荐超时时间: 60s–360s
 6. 目前免费使用
+7. **建议使用英文 prompt**，效果通常比中文更好
+8. LobeHub 凭证环境变量名为 `AGNES_API_KEY`（非 `AGNES_AI_API_KEY`）
 
 ## 应用场景
 
-- Creative Design (海报、概念艺术、社交媒体视觉)
-- Marketing Content (产品广告、活动创意、横幅)
-- E-commerce (产品图增强、场景图)
-- Visual Production (应用、网站、游戏、视频素材)
-- Social Content (表情包、头像、缩略图)
+- 🎨 Creative Design（海报、概念艺术、社交媒体视觉）
+- 📢 Marketing Content（产品广告、活动创意、横幅）
+- 🛒 E-commerce（产品图增强、场景图）
+- 🎬 Visual Production（应用、网站、游戏、视频素材）
+- 😄 Social Content（表情包、头像、缩略图）
